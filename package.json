@@ -1,0 +1,19 @@
+{
+  "name": "shortly-api",
+  "version": "1.0.0",
+  "description": "API para encurtador de urls",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "nodemon src/server.js"
+  },
+  "keywords": ["api", "nodejs", "expert"],
+  "author": "Larissa Dalimar",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "postgresql": "^0.0.1"
+  }
+}
