@@ -1,32 +1,23 @@
-import { connectionDB } from "../db/db.js";
-import { loginSchema } from "../models/login.model.js";
-import bcrypt from 'bcrypt';
+import { connectionDB } from "../db/db";
+
 
 export default async function authMiddleware(req, res, next){
+    
+    const { Authorization } = req.headers;
 
-    const { email, password} = req.body;
-
-    const validation = loginSchema.validate({email, password}, { abortEarly: false } );
-
-    if(validation.error) {
-        const errors = validation.error.details.map(e => e.message);
-        return res.status(422).send(errors);
-    }
+    const token = Authorization?.replace("Bearer ", "");
 
     try {
-    
-        const userExist = await connectionDB.query("SELECT * FROM users WHERE email=$1", [email]);
+        const sessions = await connectionDB.query("SELECT * FROM sessions WHERE token=$1;", [token]);
 
-        if(userExist.rowCount < 1) return res.sendStatus(401);
+        if(sessions.rowCount < 1) return res.sendStatus(401);
 
-        if(!bcrypt.compareSync(password, userExist.rows[0].password)) return res.sendStatus(401);
-
-        res.locals.user = userExist.rows[0];
+        const user = await connectionDB.query("SELECT * FROM users WHERE id=$1;", [sessions.rows[0].userId]);
+        res.locals.user = user;
 
     } catch (error) {
-        return res.status(500).send(error.message);
+        res.status(500).send(error.message);
     }
 
-
-    next();
+   next();
 }
